@@ -1,19 +1,33 @@
 import http
 
 import flask
+import json
+from flask import request
+
+from .ship import Game, Ship
 
 app = flask.Flask(__name__)
 
-@app.route('/battleship', methods=['POST'])
+
+@app.route("/battleship", methods=["POST"])
 def create_battleship_game():
-    return flask.jsonify({}), http.HTTPStatus.NOT_IMPLEMENTED
+    Game.start_game()
+    ships = request.get_json()["ships"]
+    for ship in ships:
+        Ship(ship["x"], ship["y"], ship["size"], ship["direction"])
+    return flask.jsonify({}), http.HTTPStatus.OK
 
 
-@app.route('/battleship', methods=['PUT'])
+@app.route("/battleship", methods=["PUT"])
 def shot():
-    return flask.jsonify({}), http.HTTPStatus.NOT_IMPLEMENTED
+    shot = request.get_json()
+    game = Game.get_game()
+    res = game.shoot(shot["x"], shot["y"])
+
+    return flask.jsonify({"result": res}), http.HTTPStatus.OK
 
 
-@app.route('/battleship', methods=['DELETE'])
+@app.route("/battleship", methods=["DELETE"])
 def delete_battleship_game():
-    return flask.jsonify({}), http.HTTPStatus.NOT_IMPLEMENTED
+    Game.end_game()
+    return flask.jsonify({}), http.HTTPStatus.OK
